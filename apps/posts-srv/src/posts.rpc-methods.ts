@@ -10,7 +10,9 @@ import {
   CommentsLogger,
 } from '@food-stories/posts-srv/core';
 import {
+  GetChartValuesHandler,
   makeCreatePostHandler,
+  makeGetFeedsPostHandler,
   makeGetUsersPostsHandler,
   makeUpdateMediaUrlsHandler,
 } from '@food-stories/posts-srv//post';
@@ -47,6 +49,8 @@ export const PostsServiceImpl: IPostsServiceServer = {
   createPost: makeUnaryCallHandler(makeCreatePostHandler(Logger, createProducer(kafkaClientForPosts)), logger),
   updatePostMediaUrls: wrapHandler(makeUpdateMediaUrlsHandler),
   getUsersPosts: wrapHandler(makeGetUsersPostsHandler),
+  getFeedsPosts: wrapHandler(makeGetFeedsPostHandler),
+  getChartValues: makeUnaryCallHandler(new GetChartValuesHandler(), logger)
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

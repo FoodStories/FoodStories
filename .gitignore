@@ -2,6 +2,8 @@
 
 service-accounts/
 
+k8s/secrets
+k8s/config-maps
 # env
 .env
 
@@ -9,6 +11,8 @@ service-accounts/
 dist
 tmp
 /out-tsc
+
+pm2.config.js
 
 # dependencies
 node_modules
@@ -51,7 +55,5 @@ Thumbs.db
 .runtimeconfig.json
 
 
-# nx
-.nx\
-cache/
-.nx\cache
+#nx
+.nx/cache

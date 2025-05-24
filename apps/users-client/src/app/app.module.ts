@@ -44,10 +44,10 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
         },
       }
     ),
-    !environment.production ? StoreDevtoolsModule.instrument(): [],
+    !environment.production ? StoreDevtoolsModule.instrument({connectInZone: true}): [],
     EffectsModule.forRoot([AppEffects]),
     StoreRouterConnectingModule.forRoot({stateKey: 'router'}),
-    SocketIoModule.forRoot({url: 'ws://localhost:3000',  options: {}})
+    SocketIoModule.forRoot({url: environment.socketUrl,  options: {}})
   ],
   declarations: [AppComponent],
   providers: [

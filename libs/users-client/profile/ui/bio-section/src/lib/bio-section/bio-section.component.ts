@@ -1,8 +1,10 @@
 import {
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  Output,
   SimpleChanges,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -60,7 +62,7 @@ export class BioSectionComponent implements OnChanges, OnInit {
     private bioSectionService: BioSectionService,
     private profileStore: ProfileStore,
     private store: Store,
-    private http: HttpClient
+    private http: HttpClient,
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -75,15 +77,43 @@ export class BioSectionComponent implements OnChanges, OnInit {
 
   isPrivate: boolean | undefined;
 
+  @Output() blockUserEvent = new EventEmitter();
+  @Output() unblockUserEvent = new EventEmitter();
+
   @Input({ required: true }) currentUser!: IUser | null;
   @Input({ required: true }) isOwnProfile!: boolean | null;
   @Input({ required: true }) isFollowing: boolean | null = false;
+  @Input({ required: true }) isBlocked: boolean | null = false;
   DPURL!: string;
+  activeUserid!: string;
 
   ngOnInit(): void {
     this.store.select(selectCurrentUser).subscribe((user) => {
+      this.activeUserid = user.id;
       this.isPrivate = user.isPrivate;
     });
+  }
+
+  unblockUser() {
+    if (this.currentUser && this.currentUser.id)
+      this.http
+        .delete(API_ENDPOINTS.SocialNetworks.unblockUser(this.currentUser.id), {
+          body: { blockerId: this.activeUserid },
+        })
+        .subscribe(() => {
+          this.unblockUserEvent.emit();
+        });
+  }
+
+  blockUser() {
+    if (this.currentUser && this.currentUser.id)
+      this.http
+        .post(API_ENDPOINTS.SocialNetworks.blockUser(this.currentUser.id), {
+          blockerId: this.activeUserid,
+        })
+        .subscribe(() => {
+          this.blockUserEvent.emit();
+        });
   }
 
   changeAccountPrivacey() {
@@ -115,9 +145,13 @@ export class BioSectionComponent implements OnChanges, OnInit {
           this.http
             .post(
               API_ENDPOINTS.SocialNetworks.followAUser(this.currentUser.id),
-              { followerId: idOrusername.id, followerUsername: idOrusername.username }
+              {
+                followerId: idOrusername.id,
+                followerUsername: idOrusername.username,
+              }
             )
             .subscribe(() => {
+              console.log(idOrusername, this.currentUser);
               this.profileStore.addNewFollower();
               this.isFollowing = true;
             });
