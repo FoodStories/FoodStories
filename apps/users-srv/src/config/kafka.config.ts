@@ -7,6 +7,7 @@ import {
   createConsumer,
 } from '@food-stories/common/kafka';
 import { makeUserCreatedSubscriber } from '@food-stories/users-srv/social-network';
+import { NotificationsSubscriber } from '@food-stories/notifications-srv/notifications';
 import { neo4jDriver } from './neo4j.config';
 import {
   FollowedAUserEventSubscriber,
@@ -15,12 +16,22 @@ import {
 } from '@food-stories/users-srv/user';
 
 export const kafkaClient = createKafkaClient(
-  { clientId: 'social-networks-srv', hostUrl: appConfig.KAFKA_URI },
+  {
+    clientId: 'social-networks-srv',
+    hostUrl: appConfig.KAFKA_URI,
+    username: appConfig.KAFKA_USERNAME,
+    password: appConfig.KAFKA_PASSWORD,
+  },
   new Logger('KAFKA')
 );
 
 export const kafkaClient2 = createKafkaClient(
-  { clientId: 'users-srv', hostUrl: appConfig.KAFKA_URI },
+  {
+    clientId: 'users-srv',
+    hostUrl: appConfig.KAFKA_URI,
+    username: appConfig.KAFKA_USERNAME,
+    password: appConfig.KAFKA_PASSWORD,
+  },
   new Logger('KAFKA2')
 );
 
@@ -29,6 +40,7 @@ export const topicsNeeded = [
   'User.Updated.Privacy',
   'User.Followed',
   'User.UnFollowed',
+  'notifications'
 ];
 
 export const consumers = [
@@ -53,4 +65,9 @@ export const consumers = [
     createConsumer(kafkaClient2, 'users-srv-post-created'),
     logger
   ),
+  makeConsumerAdapter(
+    new NotificationsSubscriber(),
+    createConsumer(kafkaClient2, 'notificaionst'),
+    logger,
+  )
 ];
