@@ -37,6 +37,7 @@
       "@food-stories/api-gateway/core/firebase-admin": [
         "libs/api-gateway/core/firebase-admin/src/index.ts"
       ],
+      "@food-stories/api-gateway/feed": ["libs/api-gateway/feed/src/index.ts"],
       "@food-stories/api-gateway/like": ["libs/api-gateway/like/src/index.ts"],
       "@food-stories/api-gateway/notifications": [
         "libs/api-gateway/notifications/src/index.ts"
@@ -56,6 +57,9 @@
       "@food-stories/common/logger": ["libs/common/logger/src/index.ts"],
       "@food-stories/common/typings": ["libs/common/typings/src/index.ts"],
       "@food-stories/common/utils": ["libs/common/utils/src/index.ts"],
+      "@food-stories/notifications-srv/notifications": [
+        "libs/notifications-srv/notifications/src/index.ts"
+      ],
       "@food-stories/posts-srv//post": ["libs/posts-srv/post/src/index.ts"],
       "@food-stories/posts-srv/comment": [
         "libs/posts-srv/comment/src/index.ts"
@@ -104,6 +108,9 @@
       "@food-stories/users-client/feed/ui/stories": [
         "libs/users-client/feed/ui/stories/src/index.ts"
       ],
+      "@food-stories/users-client/notifications": [
+        "libs/users-client/notifications/src/index.ts"
+      ],
       "@food-stories/users-client/post/data-access": [
         "libs/users-client/post/data-access/src/index.ts"
       ],
@@ -115,6 +122,9 @@
       ],
       "@food-stories/users-client/post/ui/create-post-stepper": [
         "libs/users-client/post/ui/create-post-stepper/src/index.ts"
+      ],
+      "@food-stories/users-client/post/ui/feed-item": [
+        "libs/users-client/post/ui/feed-item/src/index.ts"
       ],
       "@food-stories/users-client/post/ui/posts-grid": [
         "libs/users-client/post/ui/posts-grid/src/index.ts"
