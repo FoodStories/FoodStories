@@ -1,26 +1,28 @@
-import dotenv from 'dotenv';
-import { ILogger } from '@food-stories/common/logger';
+import { loadAppConfig } from '@food-stories/common/utils';
+import { logger } from '@food-stories/users-srv/core';
 
 interface IAppConfig {
   GRPC_PORT: string;
+  MONGODB_URI: string;
+  KAFKA_URI: string;
+  KAFKA_USERNAME: string;
+  KAFKA_PASSWORD: string;
+  NEO4J_URI: string;
+  NEO4J_USERNAME: string;
+  NEO4J_PASSWORD: string;
+
 }
 
-export const appConfig : Partial<IAppConfig> = {};
+export const envKeys: string[] = [
+  'GRPC_PORT',
+  'MONGODB_URI',
+  'KAFKA_URI',
+  'KAFKA_USERNAME',
+  'KAFKA_PASSWORD',
+  'NEO4J_PASSWORD',
+  'NEO4J_USERNAME',
+  'NEO4J_URI'
+];
 
-export async function loadAppConfig(logger: ILogger) {
-
-  dotenv.config();
-  
-  const keys: string[] = ['GRPC_PORT'];
-
-  for (const key of keys) {
-    if (!process.env[key]) {
-      throw new Error(`${key} must be specified`);
-    }
-    appConfig[key] = process.env[key];
-  }
-
-  logger.info('Loaded app config values');
-}
-
-
+export const appConfig: Partial<IAppConfig> = {};
+loadAppConfig(envKeys, appConfig, logger);

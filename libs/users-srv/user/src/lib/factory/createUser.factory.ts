@@ -2,12 +2,15 @@ import { BaseHandler } from "@food-stories/common/handlers";
 import { CreateUserHandler } from "../interface/rpc/handlers";
 import { CreateUserUseCase } from "../application/usecases/CreateUser.usecase";
 import { LoggerClass } from "@food-stories/common/logger";
-import { UserRepository } from "../interface/db/mongodb/repository/users.repository";
-import { userModel } from "../interface/db/mongodb/models/user.model";
+import { userRepo }  from '../interface/db/mongodb/users.repository';
+import { UserCreatedEventPublisher } from "../infra/pub-sub/publishers/UserCreated.publisher";
+import { Producer } from "kafkajs";
 
-export const userRepo = new UserRepository(userModel);
 
-export function makeCreateUserHandler(Logger: LoggerClass) : BaseHandler {
-  const usecase = new CreateUserUseCase(new Logger('UseCase:Create'), userRepo);
-  return  new CreateUserHandler( usecase, new Logger('Handler:Create'));
+
+
+export function makeCreateUserHandler(Logger: LoggerClass, producer: Producer) : BaseHandler {
+  const  publisher = new UserCreatedEventPublisher(producer, new Logger('Publisher: UserCreated'))
+  const usecase = new CreateUserUseCase(new Logger('UseCase:CreateUser'), userRepo, publisher);
+  return  new CreateUserHandler(usecase);
 }
