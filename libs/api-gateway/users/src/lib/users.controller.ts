@@ -8,13 +8,13 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
+  // UseGuards,
 } from '@nestjs/common';
 import { ApiGatewayUsersService } from './users.service';
 import { CreateUserDTO } from './CreateUser.dto';
 import { EditProfileData } from '@food-stories/common/typings';
-import { AuthGuard } from '@food-stories/api-gateway/common';
-import { firstValueFrom, map, tap } from 'rxjs';
+// import { AuthGuard } from '@food-stories/api-gateway/common';
+import { firstValueFrom, map } from 'rxjs';
 import { ApiGatewaySocialNetworkService } from '@food-stories/api-gateway/social-network';
 
 @Controller('users')
@@ -24,6 +24,27 @@ export class ApiGatewayUsersController {
     private apiGatewayUsersService: ApiGatewayUsersService,
     private socialNetworkService: ApiGatewaySocialNetworkService
   ) {}
+
+
+  @Get('chart')
+  getChartValues() {
+    return  this.apiGatewayUsersService.getChartValues();
+  }
+
+
+
+  @Get()
+  getUesrs(@Query() query: { size: string; page: string }) {
+    return this.apiGatewayUsersService.getUsers({
+      page: parseInt(query.page),
+      size: parseInt(query.size),
+    });
+  }
+
+  @Get('notifications/:userId')
+  getNotifications(@Param('userId') userId: string) {
+    return this.apiGatewayUsersService.getNotifications({ userId });
+  }
 
   @Get('username/:username')
   checkUsername(@Param() params: { username: string }) {
@@ -49,10 +70,9 @@ export class ApiGatewayUsersController {
 
   @Get('/search')
   searchUsers(@Query('query') query: string) {
-    return this.apiGatewayUsersService.searchUsers({ query }).pipe(
-      map((results) => (results.results ? results : { results: [] })),
-      tap((val) => console.log(val))
-    );
+    return this.apiGatewayUsersService
+      .searchUsers({ query })
+      .pipe(map((results) => (results.results ? results : { results: [] })));
   }
 
   @Get(':username')
@@ -60,17 +80,16 @@ export class ApiGatewayUsersController {
     @Param() params: { username: string },
     @Query('userId') userId: string
   ) {
-      const result = await firstValueFrom(
-        this.socialNetworkService.hasBlocked({
-          blockerUsername: params.username,
-          targetUserId: userId,
-        })
-      );
-      console.log(result);
+    const result = await firstValueFrom(
+      this.socialNetworkService.hasBlocked({
+        blockerUsername: params.username,
+        targetUserId: userId,
+      })
+    );
 
-      if (result.hasBlocked) {
-        throw new NotFoundException();
-      }
+    if (result.hasBlocked) {
+      throw new NotFoundException();
+    }
     return this.apiGatewayUsersService.getUserData({
       username: params.username,
     });

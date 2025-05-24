@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { BaseHandler, BaseSubscriber, RequestPayload, ResponsePayload, respondSuccess } from '@food-stories/common/handlers';
-import { IMakeAccountPrivateRequest, ISearchUserRequest, ISearchUserResponse } from '@food-stories/common/typings';
+import { GetChartValuesResponse, GetUsersRequest, GetUsersResponse, IMakeAccountPrivateRequest, ISearchUserRequest, ISearchUserResponse } from '@food-stories/common/typings';
 import { userModel } from '../interface/db/mongodb/models/user.model';
 import { Producer } from 'kafkajs';
+import { mapDocumentsToUserEntities } from '../interface/db/mongodb/mapper.helper';
 
 export * from './createUser.factory';
 export * from './isUsernameAvailable.factory';
@@ -9,6 +12,41 @@ export * from './isRegisteredUser.factory';
 export * from './getCurrentUserData.factory';
 export * from './getUserData.factory';
 export * from './udpateUserProfile.factory';
+
+
+export function makeGetUsersHandler() {
+  return new GetUsersHandler();
+}
+
+
+export class GetChartValues extends BaseHandler {
+   async execute(request: RequestPayload<void>): Promise<ResponsePayload<GetChartValuesResponse>> {
+    const startOfPastYear = new Date();
+    startOfPastYear.setFullYear(startOfPastYear.getFullYear() - 1);
+
+      const results = await userModel.find({createdAt: {$gte: startOfPastYear}})
+      const monthCounts = new Array(12).fill(0);
+
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      results.forEach(user => {
+        const createdAt = new Date(user.createdAt);
+        const monthIndex = (createdAt.getMonth() + 12 - currentMonth) % 12;
+        monthCounts[monthIndex]++;
+      });
+      return respondSuccess({counts: monthCounts.reverse()})
+  }
+
+
+}
+
+export  class GetUsersHandler extends BaseHandler {
+ async execute(request: RequestPayload<GetUsersRequest>): Promise<ResponsePayload<GetUsersResponse>> {
+    const usersDocs = await userModel.find().skip(request.data.page * request.data.size).limit(request.data.size);
+    const count = await userModel.count();
+    return respondSuccess({users: mapDocumentsToUserEntities(usersDocs), count})
+  }
+}
 
 export class PostCreatedHandler extends BaseSubscriber {
   override event = 'Post.Created';
@@ -101,3 +139,4 @@ class MakeAccountPublicHandler extends BaseHandler {
       return respondSuccess(void 0);
   }
 }
+
