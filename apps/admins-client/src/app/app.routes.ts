@@ -26,12 +26,15 @@ export const appRoutes : Route[] = [
         loadComponent: () => import('@food-stories/admins-client/dashboard').then((comp) => comp.DashboardComponent)
     
       },
+      {
+        path: 'users',
+        loadComponent: () => import('@food-stories/admins-client/users').then((comp) => comp.UsersComponent)
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full'
+      }
     ]
-  }
-,
-  {
-    path: '',
-    redirectTo: 'auth',
-    pathMatch: 'full',
   }
 ]

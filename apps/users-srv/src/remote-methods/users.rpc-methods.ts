@@ -13,12 +13,15 @@ import {
   makeSearchUsersHanlder,
   makeAccountPRivateHandler,
   makeAccountpubliceHandler,
+  makeGetUsersHandler,
+  GetChartValues,
 } from '@food-stories/users-srv/user';
 import { Logger, logger } from '@food-stories/users-srv/core';
 import { kafkaClient, kafkaClient2 } from '../config/kafka.config';
 import { createProducer } from '@food-stories/common/kafka';
-import { makeBlockUserHandler, makeFollowAUserHandler, makeHasBlockedHandler, makeIsFollowingHandler, makeUnblockUserHandler, makeUnfollowAUserHandler } from '@food-stories/users-srv/social-network';
+import { makeBlockUserHandler, makeFollowAUserHandler, makeGetFollowingsHandler, makeHasBlockedHandler, makeIsFollowingHandler, makeUnblockUserHandler, makeUnfollowAUserHandler } from '@food-stories/users-srv/social-network';
 import { neo4jDriver } from '../config/neo4j.config';
+import { GetNotificationsHandler } from '@food-stories/notifications-srv/notifications';
 
 export const UsersServiceImpl: IUsersServiceServer = {
   createUser: makeUnaryCallHandler(
@@ -32,7 +35,10 @@ export const UsersServiceImpl: IUsersServiceServer = {
   updateUserProfile: wrapHandler(makeUpdateUserProfileHandler),
   searchUsers: wrapHandler(makeSearchUsersHanlder),
   makeAccountPrivate : makeUnaryCallHandler(makeAccountPRivateHandler(createProducer(kafkaClient2)), logger),
-  makeAccountPublic: makeUnaryCallHandler(makeAccountpubliceHandler(createProducer(kafkaClient2)), logger)
+  makeAccountPublic: makeUnaryCallHandler(makeAccountpubliceHandler(createProducer(kafkaClient2)), logger),
+  getUsers: makeUnaryCallHandler(makeGetUsersHandler(), logger),
+  getNotifications: makeUnaryCallHandler(new GetNotificationsHandler(), logger),
+  getChartValues: makeUnaryCallHandler(new GetChartValues(), logger)
 };
 
 export const SocialNetworkServiceImpl: ISocialNetworkServiceServer = {
@@ -42,6 +48,7 @@ export const SocialNetworkServiceImpl: ISocialNetworkServiceServer = {
   BlockUser: makeUnaryCallHandler(makeBlockUserHandler(neo4jDriver, createProducer(kafkaClient)), logger),
   unblockUser: makeUnaryCallHandler(makeUnblockUserHandler(neo4jDriver), logger),
   hasBlocked: makeUnaryCallHandler(makeHasBlockedHandler(neo4jDriver), logger),
+  getFollowings: makeUnaryCallHandler(makeGetFollowingsHandler(neo4jDriver), logger),
 }
 
 
