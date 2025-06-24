@@ -18,6 +18,10 @@ import { Auth } from '@angular/fire/auth';
 import { Store } from '@ngrx/store';
 import { ProfileHttpService } from '@food-stories/users-client/shared/data-access';
 import { AppEffects, appInitFactory, appReducer } from '@food-stories/users-client/shared/app-init';
+import { authInterceptorProvider } from '@food-stories/users-client/auth/utils';
+import { NotificationsWebsocket } from './websocket.service';
+import { SocketIoModule } from 'ngx-socket-io';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -27,6 +31,7 @@ import { AppEffects, appInitFactory, appReducer } from '@food-stories/users-clie
     RouterModule.forRoot(appRoutes, {scrollPositionRestoration: 'enabled'}),
     MatProgressBarModule,
     HttpClientModule,
+    MatSnackBarModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideStorage(() => getStorage()),
@@ -39,9 +44,10 @@ import { AppEffects, appInitFactory, appReducer } from '@food-stories/users-clie
         },
       }
     ),
-    !environment.production ? StoreDevtoolsModule.instrument(): [],
+    !environment.production ? StoreDevtoolsModule.instrument({connectInZone: true}): [],
     EffectsModule.forRoot([AppEffects]),
     StoreRouterConnectingModule.forRoot({stateKey: 'router'}),
+    SocketIoModule.forRoot({url: environment.socketUrl,  options: {}})
   ],
   declarations: [AppComponent],
   providers: [
@@ -51,7 +57,9 @@ import { AppEffects, appInitFactory, appReducer } from '@food-stories/users-clie
       multi: true,
       deps: [Auth, Store]
     },
-    ProfileHttpService
+    authInterceptorProvider,
+    ProfileHttpService,
+    NotificationsWebsocket
   ],
   bootstrap: [AppComponent],
 })

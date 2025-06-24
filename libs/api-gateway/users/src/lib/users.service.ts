@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { TOKEN } from './token';
 import { ClientGrpc } from '@nestjs/microservices';
-import { EditProfileData, IUsersServiceClient, IgetCurrentUserDataRequest, IgetUserDataRequest } from '@food-stories/common/typings';
+import { EditProfileData, GetUsersRequest, IMakeAccountPrivateRequest, ISearchUserRequest, IUsersServiceClient, IgetCurrentUserDataRequest, IgetUserDataRequest } from '@food-stories/common/typings';
 import { UsersAppConfig } from './config';
 import { CreateUserDTO } from './CreateUser.dto';
 import { handleGrpcError } from '@food-stories/api-gateway/common';
@@ -42,6 +42,35 @@ export class ApiGatewayUsersService implements OnModuleInit {
 
   udpateUserProfile(data: EditProfileData) {
     return handleGrpcError(this.usersService.updateUserProfile(data));
+  }
+
+
+  searchUsers(data: ISearchUserRequest) {
+    return handleGrpcError(this.usersService.searchUsers(data));
+  }
+
+
+  makeAccountPrivate(data: IMakeAccountPrivateRequest) {
+    return  handleGrpcError(this.usersService.makeAccountPrivate(data));
+  }
+
+  makeAccountPublic(data: IMakeAccountPrivateRequest) {
+    return  handleGrpcError(this.usersService.makeAccountPublic(data));
+  }
+
+
+  getUsers(data: GetUsersRequest) {
+    return handleGrpcError(this.usersService.getUsers(data));
+  }
+
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getNotifications(data: any) {
+    return handleGrpcError(this.usersService.getNotifications(data));
+  }
+
+  getChartValues() {
+    return handleGrpcError(this.usersService.getChartValues({}));
   }
 }
 
