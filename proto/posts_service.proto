@@ -6,8 +6,23 @@ service PostsService {
   rpc createPost(CreatePostRequest) returns (PostEntity) {}
   rpc updatePostMediaUrls(UpdatePostMediaUrlsRequest)returns (PostEntity) {}
   rpc getUsersPosts(GetUsersPostsRequest) returns(GetUserPostsResponse) {}
+  rpc getFeedsPosts(getFeedsPostsRequest) returns(GetUserPostsResponse) {}
+  rpc getChartValues(EMPTY) returns(GetChartValuesResponse) {}
+
 }
 
+
+message GetChartValuesResponse {
+  repeated int32 counts = 0;
+}
+
+message getFeedsPostsRequest {
+  repeated string  userIds = 0;
+}
+
+message getFeedsPostsResponse {
+  repeated PostEntity posts = 0;
+}
 
 message PostEntity {
   string id = 0;

@@ -1,0 +1,15 @@
+apiVersion: "networking.k8s.io/v1"
+kind: "Ingress"
+metadata:
+  name: "foodstories-ingress"
+  namespace: "default"
+  annotations:
+    networking.gke.io/managed-certificates: "foodstories-tls-cert"
+spec:
+  defaultBackend:
+    service:
+      name: "api-gateway-depl-nr6fj"
+      port:
+        number: 80
+status:
+  loadBalancer: {}
