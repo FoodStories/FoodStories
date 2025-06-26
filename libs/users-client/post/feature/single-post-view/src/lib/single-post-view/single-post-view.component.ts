@@ -1,5 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CUSTOM_ELEMENTS_SCHEMA, Component, OnInit, inject } from '@angular/core';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,10 +31,12 @@ interface DialogData {
     MatFormFieldModule,
     MatInputModule,
     ReactiveFormsModule,
-    RelativePipeModule
+    RelativePipeModule,
+    NgOptimizedImage
   ],
   templateUrl: './single-post-view.component.html',
   styleUrls: ['./single-post-view.component.css'],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SinglePostViewComponent implements OnInit {
   store = inject(Store);
@@ -44,12 +46,14 @@ export class SinglePostViewComponent implements OnInit {
   commentInput = new FormControl('');
 
   userId = '';
+  username = '';
   isLiked = false;
   comments: IComment[] = [];
 
   ngOnInit(): void {
     this.store.select(selectCurrentUserIdOrUsername).subscribe((data) => {
       this.userId = data.id;
+      this.username = data.username;
       this.likesService
         .isPostLiked(this.data.post.id, this.userId)
         .subscribe((response) => {
@@ -68,6 +72,8 @@ export class SinglePostViewComponent implements OnInit {
           postId: this.data.post.id,
           userId: this.userId,
           comment: this.commentInput.value,
+          commentedUserUsername: this.username,
+          postOwnerId: this.data.post.userId
         })
         .subscribe((comment) => {
           this.commentInput.setValue('')
@@ -79,13 +85,18 @@ export class SinglePostViewComponent implements OnInit {
     if (this.isLiked) {
       this.likesService
         .unlikeAPost(this.data.post.id, this.userId)
-        .subscribe(() => (this.isLiked = false));
+        .subscribe(() => (this.isLiked = false, this.data.post.likesCount--));
     }
 
     if (!this.isLiked) {
       this.likesService
-        .likeAPost(this.data.post.id, this.userId)
-        .subscribe(() => (this.isLiked = true));
+        .likeAPost({
+          userId: this.userId,
+          likedUserUsername: this.username,
+          postId: this.data.post.id,
+          postOwnerId: this.data.post.userId
+        })
+        .subscribe(() => (this.isLiked = true, this.data.post.likesCount++));
     }
   }
 }

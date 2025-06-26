@@ -5,6 +5,44 @@ package social_networks_service.v1;
 service SocialNetworksService {
  rpc followAUser (followOrUnfollowAUserRequest) returns (EMPTY) {};
  rpc unfollowAUser (followOrUnfollowAUserRequest) returns (EMPTY) {};
+ rpc isFollowing (followOrUnfollowAUserRequest) returns (IsFollowingResponse) {};
+ rpc BlockUser (BlockUserRequest) returns (EMPTY) {};
+ rpc unblockUser(BlockUserRequest) returns (EMPTY) {};
+ rpc hasBlocked(HasBlockedRequest) returns (HasBlockedResponse) {};
+ rpc getFollowings(GetFollowingsRequest) returns (GetFollowingsResponse) {};
+}
+
+message userDetails {
+  string id = 0;
+  string username = 1;
+  string DPURL = 2;
+}
+
+message GetFollowingsResponse {
+  repeated userDetails users = 0;
+}
+
+message GetFollowingsRequest {
+  string userId = 0;
+}
+
+message HasBlockedResponse {
+  bool hasBlocked = 0;
+}
+
+message HasBlockedRequest {
+  string targetUserId = 0;
+  string blockerUsername = 1;
+}
+
+message BlockUserRequest {
+  string blockerId = 0;
+  string targetId = 1;
+}
+
+message IsFollowingResponse {
+  bool isFollowing = 0;
+  bool isBlocked = 1;
 }
 
 message RelationshipEntity {
@@ -17,4 +55,5 @@ message EMPTY {}
 message followOrUnfollowAUserRequest {
    string followerId = 0;
    string followeeId = 1;
+   string followerUsername = 2;
 }

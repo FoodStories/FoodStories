@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
   import {  Metadata, handleUnaryCall } from '@grpc/grpc-js';
   import { Observable } from 'rxjs';
 import { IUser } from '../interfaces/IUser.interface';
@@ -11,6 +12,12 @@ import { EditProfileData } from '../dto/editProfileData.dto';
     getUserData(request: IgetUserDataRequest, metadata?: Metadata) : Observable<IUser>
     updateUserProfile(request: EditProfileData, metadata?: Metadata) : Observable<IUser>;
     searchUsers(request: ISearchUserRequest): Observable<ISearchUserResponse>;
+    makeAccountPrivate(request:IMakeAccountPrivateRequest) : Observable<void>
+    makeAccountPublic(request: IMakeAccountPrivateRequest) : Observable<void>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    getUsers(request: GetUsersRequest): Observable<GetUsersResponse>;
+    getNotifications(request: any): Observable<any>;
+    getChartValues(request: any): Observable<GetChartValuesResponse>
   }
 
   export interface IUsersServiceServer {
@@ -21,8 +28,32 @@ import { EditProfileData } from '../dto/editProfileData.dto';
     getUserData: handleUnaryCall<IgetUserDataRequest, IUser>;
     updateUserProfile: handleUnaryCall<EditProfileData, IUser>;
     searchUsers: handleUnaryCall<ISearchUserRequest, ISearchUserResponse>;
+    makeAccountPrivate: handleUnaryCall<IMakeAccountPrivateRequest, void>;
+    makeAccountPublic: handleUnaryCall<IMakeAccountPrivateRequest, void>;
+    getUsers: handleUnaryCall<GetUsersRequest, GetUsersResponse>;
+    getNotifications: handleUnaryCall<any, any>;
+    getChartValues: handleUnaryCall<void, GetChartValuesResponse>;
+    
   }
 
+  export interface GetChartValuesResponse {
+    counts: number[];
+  }
+
+
+  export interface GetUsersRequest {
+    size: number;
+    page: number;
+  }
+  export interface GetUsersResponse {
+    users: IUser[];
+    count: number;
+  }
+
+
+  export interface  IMakeAccountPrivateRequest {
+    userId: string;
+  }
 
   export interface ISearchUserRequest  {
     query: string;

@@ -16,15 +16,14 @@ import { MatProgressBarModule } from '@angular/material/progress-bar'
 import {
   Storage,
   StorageReference,
-  // UploadResult,
   UploadTask,
   getDownloadURL,
   ref,
-  // uploadBytes,
   uploadBytesResumable,
 } from '@angular/fire/storage';
 import { Auth } from '@angular/fire/auth';
 import { REF_PATHS } from '@food-stories/users-client/shared/config';
+import {  NewPostEventsService } from '@food-stories/users-client/profile/feature';
 import { from, zip } from 'rxjs';
 @Component({
   selector: 'fs-create-post',
@@ -52,6 +51,7 @@ export class CreatePostDialogComponent implements OnInit {
   store = inject(Store);
   storage = inject(Storage);
   auth = inject(Auth);
+  newPostEventService = inject(NewPostEventsService);
   mediaUrls: string[] = [];
 
 
@@ -95,7 +95,6 @@ export class CreatePostDialogComponent implements OnInit {
     sharePost() {
       this.stepper.next();
 
-    // const fileUploadPromises: Promise<UploadResult>[] = [];
     const refPaths: StorageReference[] = [];
     
     this.createPostService
@@ -105,18 +104,12 @@ export class CreatePostDialogComponent implements OnInit {
         this.progressCaption = 'Uploading  medias...'
         for (let i = 0; i < this.files.length; i++) {
           const refPath = ref(this.storage, REF_PATHS.getOriginalPostPath(res.id, res.userId, i));
-          // fileUploadPromises.push(uploadBytes(refPath, this.files[i]));
           const upload = uploadBytesResumable(refPath, this.files[i]);
           this.sha.push(upload)
           this.calcuateUploadProgress(upload);
           this.onUploadFinish(upload, refPaths, res.id, res.userId)
           refPaths.push(refPath);
         }
-
-
-        // Promise.all(fileUploadPromises).then(() => {
-     
-        // })
       });
 
   
@@ -126,13 +119,16 @@ export class CreatePostDialogComponent implements OnInit {
     this.fileUploadProgress = 95;
     this.progressCaption = 'Getting ready your medias...';
     zip(
-      from(Promise.all(refPaths.map(refs => getDownloadURL(refs)))), 
-      this.createPostService.getDownloadURLWithRetry(id, userId))
-      .subscribe(([mediaUrls, thumbnailUrl]) => {
+      from(Promise.all(refPaths.map(refs => getDownloadURL(refs)))))
+      // this.createPostService.getDownloadURLWithRetry(id, userId))
+      .subscribe(([mediaUrls]) => {
         this.progressCaption = 'Syncing your changes...';
         this.fileUploadProgress = 98;
-      this.createPostService.updatePostMediaUrls(id, mediaUrls, thumbnailUrl)
-      .subscribe(() => this.dialogRef.close());
+      this.createPostService.updatePostMediaUrls(id, mediaUrls, mediaUrls[0])
+      .subscribe((res) => {
+        this.newPostEventService.setNewPost(res)
+        this.dialogRef.close();
+      });
     })
   }
 
