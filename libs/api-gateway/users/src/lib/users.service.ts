@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { TOKEN } from './token';
 import { ClientGrpc } from '@nestjs/microservices';
-import { EditProfileData, IMakeAccountPrivateRequest, ISearchUserRequest, IUsersServiceClient, IgetCurrentUserDataRequest, IgetUserDataRequest } from '@food-stories/common/typings';
+import { EditProfileData, GetUsersRequest, IMakeAccountPrivateRequest, ISearchUserRequest, IUsersServiceClient, IgetCurrentUserDataRequest, IgetUserDataRequest } from '@food-stories/common/typings';
 import { UsersAppConfig } from './config';
 import { CreateUserDTO } from './CreateUser.dto';
 import { handleGrpcError } from '@food-stories/api-gateway/common';
@@ -59,10 +59,19 @@ export class ApiGatewayUsersService implements OnModuleInit {
   }
 
 
-  getUsers() {
-    return handleGrpcError(this.usersService.getUsers({}));
+  getUsers(data: GetUsersRequest) {
+    return handleGrpcError(this.usersService.getUsers(data));
   }
 
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getNotifications(data: any) {
+    return handleGrpcError(this.usersService.getNotifications(data));
+  }
+
+  getChartValues() {
+    return handleGrpcError(this.usersService.getChartValues({}));
+  }
 }
 
 
