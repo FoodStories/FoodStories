@@ -10,7 +10,9 @@ import {
   CommentsLogger,
 } from '@food-stories/posts-srv/core';
 import {
+  GetChartValuesHandler,
   makeCreatePostHandler,
+  makeGetFeedsPostHandler,
   makeGetUsersPostsHandler,
   makeUpdateMediaUrlsHandler,
 } from '@food-stories/posts-srv//post';
@@ -18,10 +20,10 @@ import { ILikesServiceServer } from '@food-stories/common/typings';
 import { LikeModule } from '@food-stories/posts-srv/like';
 import { CommentsModule } from '@food-stories/posts-srv/comment';
 import { createProducer } from '@food-stories/common/kafka';
-import { kafkaClientForPosts } from './config/kafka.config';
+import { kafkaClientForComments, kafkaClientForPosts } from './config/kafka.config';
 
 const commentsModuleMethods =
-  CommentsModule.initialize(CommentsLogger).getRpcHanlders();
+  CommentsModule.initialize(CommentsLogger, createProducer(kafkaClientForComments)).getRpcHanlders();
 
 export const CommentsServiceImpl: ICommentsServiceServer = {
   addComment: wrapModuleHandler(commentsModuleMethods.addComment),
@@ -47,6 +49,8 @@ export const PostsServiceImpl: IPostsServiceServer = {
   createPost: makeUnaryCallHandler(makeCreatePostHandler(Logger, createProducer(kafkaClientForPosts)), logger),
   updatePostMediaUrls: wrapHandler(makeUpdateMediaUrlsHandler),
   getUsersPosts: wrapHandler(makeGetUsersPostsHandler),
+  getFeedsPosts: wrapHandler(makeGetFeedsPostHandler),
+  getChartValues: makeUnaryCallHandler(new GetChartValuesHandler(), logger)
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

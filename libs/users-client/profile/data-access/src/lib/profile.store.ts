@@ -26,13 +26,14 @@ export class ProfileStore extends ComponentStore<ProfileState> {
     super({ user: {} as IUser, posts: [] as IPost[] });
   }
 
+
   readonly user$ = this.select((state) => state.user);
   readonly posts$ = this.select((state) => state.posts);
 
-  readonly fetchUserDetails = this.effect((username$: Observable<string>) => {
-    return username$.pipe(
-      switchMap((username) =>
-        this.http.getUserData(username).pipe(
+  readonly fetchUserDetails = this.effect((data$: Observable<{username: string, userId: string}>) => {
+    return data$.pipe(
+      switchMap((data) =>
+        this.http.getUserData(data).pipe(
           map((user) => this.loadUser(user)),
           catchError(() => EMPTY)
         )
@@ -83,10 +84,36 @@ export class ProfileStore extends ComponentStore<ProfileState> {
     );
   });
 
+  readonly addNewFollower = this.updater((state) => ({
+    ...state,
+    user: {
+      ...state.user,
+      followersCount: ++state.user.followersCount,
+    }
+  }))
+
+  readonly removeFollower = this.updater((state) => ({
+    ...state,
+    user: {
+      ...state.user,
+      followersCount: --state.user.followersCount,
+    }
+  }))
+
+
   readonly loadPosts = this.updater((state, posts: IPost[]) => ({
     ...state,
     posts,
   }));
+
+  readonly addNewPost = this.updater((state, post: IPost) => ({
+    ...state,
+    user: {
+      ...state.user,
+      postsCount: state.user.postsCount + 1,
+    },
+    posts: state.posts?.length > 0 ?  [post, ...state.posts] : [post]
+  }))
 
   readonly loadUser = this.updater(
     (state, user: IUser) => (
